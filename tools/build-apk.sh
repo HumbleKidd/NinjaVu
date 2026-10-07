@@ -6,7 +6,7 @@ BT="$SDK/build-tools/34.0.0"
 PLATFORM="$SDK/platforms/android-34/android.jar"
 BUILD="$ROOT/build/apk"
 KEY="$ROOT/keystore/ninjavu-release.jks"
-OUT="$ROOT/dist/NinjaVu-1.0.0.apk"
+OUT="$ROOT/dist/NinjaVu-1.1.0.apk"
 
 if [[ ! -f "$PLATFORM" ]]; then
   echo "Android SDK platform 34 not found at $SDK"
@@ -26,8 +26,8 @@ echo "Compiling resources"
   --java "$BUILD/gen" \
   --min-sdk-version 24 \
   --target-sdk-version 34 \
-  --version-code 1 \
-  --version-name 1.0.0 \
+  --version-code 2 \
+  --version-name 1.1.0 \
   --auto-add-overlay \
   -R "$BUILD/resources.zip"
 
