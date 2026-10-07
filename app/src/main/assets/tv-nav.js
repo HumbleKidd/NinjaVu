@@ -1,14 +1,10 @@
 /* NinjaVu TV + keyboard spatial navigation.
-   Injected into every page. Arrows / D-pad move a focus ring.
-   Enter / OK activates. Media keys drive the player. */
+   Injected into the real BingeBang WebView. No on-screen remote pad. */
 (function () {
   if (window.NinjaVuNav && window.NinjaVuNav.ready) return;
 
   var RING = "nv-focus-ring";
-  var HINT = "nv-remote-hint";
   var current = null;
-  var lastRect = null;
-  var playerMode = false;
 
   function css(el, text) {
     var s = document.createElement("style");
@@ -20,11 +16,7 @@
   css("nv-nav-style",
     "#" + RING + "{position:fixed;z-index:2147483646;pointer-events:none;border:3px solid #0F9F6E;" +
     "border-radius:16px;box-shadow:0 0 0 5px rgba(15,159,110,.28),0 10px 28px rgba(16,34,26,.28);" +
-    "transition:left .12s ease,top .12s ease,width .12s ease,height .12s ease,opacity .12s ease;opacity:0}" +
-    "#" + HINT + "{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:2147483645;" +
-    "background:#10221A;color:#F7F4EC;font:600 13px/1.2 sans-serif;padding:10px 16px;border-radius:999px;" +
-    "box-shadow:0 8px 24px rgba(16,34,26,.28);pointer-events:none;opacity:0;transition:opacity .3s}" +
-    "video::-webkit-media-controls{z-index:2}"
+    "transition:left .12s ease,top .12s ease,width .12s ease,height .12s ease,opacity .12s ease;opacity:0}"
   );
 
   function ring() {
@@ -37,22 +29,9 @@
     return r;
   }
 
-  function hint(text) {
-    var h = document.getElementById(HINT);
-    if (!h) {
-      h = document.createElement("div");
-      h.id = HINT;
-      document.documentElement.appendChild(h);
-    }
-    h.textContent = text;
-    h.style.opacity = "1";
-    clearTimeout(hint._t);
-    hint._t = setTimeout(function () { h.style.opacity = "0"; }, 2200);
-  }
-
   function visible(el) {
     if (!el || el.nodeType !== 1) return false;
-    if (el.id === RING || el.id === HINT) return false;
+    if (el.id === RING) return false;
     var st = window.getComputedStyle(el);
     if (st.display === "none" || st.visibility === "hidden" || parseFloat(st.opacity) === 0) return false;
     var b = el.getBoundingClientRect();
@@ -121,7 +100,6 @@
       return;
     }
     var b = el.getBoundingClientRect();
-    lastRect = b;
     var pad = 6;
     r.style.left = (b.left - pad) + "px";
     r.style.top = (b.top - pad) + "px";
@@ -158,7 +136,6 @@
       } else if (y < bestScore) { bestScore = y; best = list[i]; }
     }
     paint(best);
-    hint("Arrows move  \u00b7  OK selects  \u00b7  Back returns");
     return "ok";
   }
 
@@ -229,17 +206,14 @@
     if (isTyping(el)) {
       el.focus();
       if (window.NinjaVuKeys && NinjaVuKeys.setTyping) NinjaVuKeys.setTyping(true);
-      hint("Type to search  \u00b7  Back leaves the box");
       return "typing";
     }
     if (el.tagName === "VIDEO") {
       if (el.paused) el.play(); else el.pause();
-      hint(el.paused ? "Paused" : "Playing");
       return "video";
     }
     try { el.focus({ preventScroll: true }); } catch (e) { try { el.focus(); } catch (e2) {} }
     el.click();
-    hint("Selected");
     return "activated";
   }
 
@@ -266,7 +240,6 @@
     else if (action === "seek-") v.currentTime = Math.max(0, v.currentTime - 10);
     else if (action === "seek++") v.currentTime = Math.min((v.duration || v.currentTime + 30), v.currentTime + 30);
     else if (action === "seek--") v.currentTime = Math.max(0, v.currentTime - 30);
-    var sec = Math.floor(v.currentTime % 60); hint(v.paused ? "Paused" : "Playing  " + Math.floor(v.currentTime / 60) + ":" + (sec < 10 ? "0" : "") + sec);
     return "ok";
   }
 
