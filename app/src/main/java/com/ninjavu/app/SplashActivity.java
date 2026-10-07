@@ -10,10 +10,13 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class SplashActivity extends Activity {
+    private boolean opened;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +24,8 @@ public class SplashActivity extends Activity {
         root.setOrientation(LinearLayout.VERTICAL);
         root.setGravity(Gravity.CENTER);
         root.setBackgroundColor(Color.parseColor("#F7F4EC"));
+        root.setFocusable(true);
+        root.setFocusableInTouchMode(true);
 
         TextView mark = new TextView(this);
         mark.setText("N");
@@ -45,7 +50,7 @@ public class SplashActivity extends Activity {
         title.setPadding(0, dp(18), 0, 0);
 
         TextView sub = new TextView(this);
-        sub.setText("Movies and series, one tap");
+        sub.setText("Movies and series  \u00b7  remote ready");
         sub.setTextColor(Color.parseColor("#3D5348"));
         sub.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
         sub.setPadding(0, dp(6), 0, 0);
@@ -54,14 +59,27 @@ public class SplashActivity extends Activity {
         root.addView(title);
         root.addView(sub);
         setContentView(root);
+        root.requestFocus();
 
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
             public void run() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                finish();
+                openMain();
             }
         }, 900);
+    }
+
+    private void openMain() {
+        if (opened) return;
+        opened = true;
+        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+        finish();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        openMain();
+        return true;
     }
 
     private int dp(int v) {
